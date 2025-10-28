@@ -80,6 +80,7 @@ class EmailCommunicationController extends Controller
             ]);
 
             // Process contact recipients
+            $recipientCount = 0;
             if ($request->has('recipients_contacts')) {
                 foreach ($request->input('recipients_contacts', []) as $contactId) {
                     $contact = \App\Models\CommunicationContact::find($contactId);
@@ -92,6 +93,7 @@ class EmailCommunicationController extends Controller
                             'name' => $contact->name,
                             'status' => 'pending',
                         ]);
+                        $recipientCount++;
                     }
                 }
             }
@@ -108,19 +110,34 @@ class EmailCommunicationController extends Controller
                             'name' => $manualRecipient['name'] ?? null,
                             'status' => 'pending',
                         ]);
+                        $recipientCount++;
                     }
                 }
+            }
+            
+            // Check if we have recipients
+            if ($recipientCount === 0) {
+                $communication->delete();
+                return redirect()->back()
+                    ->withInput()
+                    ->with('error', 'Please add at least one recipient.');
             }
             
             // Log the email communication creation
             Log::info('Email communication created', [
                 'id' => $communication->id,
                 'subject' => $request->subject,
+                'recipients' => $recipientCount,
                 'user_id' => Auth::id(),
             ]);
             
-            return redirect()->route('communications.email.index')
-                ->with('success', 'Email communication created successfully.');
+            // If send_now is true, send immediately
+            if ($request->has('send_now') && $request->send_now == '1') {
+                return $this->sendEmails($communication->id);
+            }
+            
+            return redirect()->route('communications.email.show', $communication->id)
+                ->with('success', "Email created successfully with {$recipientCount} recipient(s). Click 'Send' to deliver.");
         } catch (\Exception $e) {
             Log::error('Error creating email communication: ' . $e->getMessage());
             return redirect()->back()

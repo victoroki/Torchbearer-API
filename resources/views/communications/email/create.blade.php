@@ -4,8 +4,13 @@
     <section class="content-header">
         <div class="container-fluid">
             <div class="row mb-2">
-                <div class="col-sm-12">
-                    <h1>Create Email Communication</h1>
+                <div class="col-sm-6">
+                    <h1><i class="fas fa-envelope"></i> Compose Email</h1>
+                </div>
+                <div class="col-sm-6">
+                    <a class="btn btn-secondary float-right" href="{{ route('communications.email.index') }}">
+                        <i class="fas fa-arrow-left"></i> Back to Inbox
+                    </a>
                 </div>
             </div>
         </div>
@@ -14,108 +19,217 @@
     <div class="content px-3">
         @include('adminlte-templates::common.errors')
 
-        <div class="card">
-            <form action="{{ route('communications.email.store') }}" method="POST" enctype="multipart/form-data">
+        <div class="card shadow-sm">
+            <form action="{{ route('communications.email.store') }}" method="POST" enctype="multipart/form-data" id="emailForm">
                 @csrf
                 <div class="card-body">
+                    <!-- Email Header Section -->
                     <div class="row">
-                        <!-- Subject Field -->
-                        <div class="form-group col-sm-12">
-                            <label for="subject">Subject:</label>
-                            <input type="text" name="subject" id="subject" class="form-control" required>
+                        <div class="col-md-12">
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle"></i> 
+                                <strong>Compose and send emails to multiple recipients.</strong>
+                                Select from your contacts or add recipients manually.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Subject Field -->
+                    <div class="row">
+                        <div class="form-group col-md-12">
+                            <label for="subject"><i class="fas fa-heading"></i> Subject <span class="text-danger">*</span></label>
+                            <input type="text" name="subject" id="subject" class="form-control form-control-lg" 
+                                   placeholder="Enter email subject" required value="{{ old('subject') }}">
+                        </div>
+                    </div>
+
+                    <!-- From Details -->
+                    <div class="row">
+                        <div class="form-group col-md-6">
+                            <label for="from_name"><i class="fas fa-user"></i> From Name <span class="text-danger">*</span></label>
+                            <input type="text" name="from_name" id="from_name" class="form-control" 
+                                   placeholder="Your name" required value="{{ old('from_name', auth()->user()->name) }}">
                         </div>
 
-                        <!-- From Name Field -->
-                        <div class="form-group col-sm-6">
-                            <label for="from_name">From Name:</label>
-                            <input type="text" name="from_name" id="from_name" class="form-control" required>
+                        <div class="form-group col-md-6">
+                            <label for="from_email"><i class="fas fa-at"></i> From Email <span class="text-danger">*</span></label>
+                            <input type="email" name="from_email" id="from_email" class="form-control" 
+                                   placeholder="your@email.com" required value="{{ old('from_email', config('mail.from.address')) }}">
                         </div>
+                    </div>
 
-                        <!-- From Email Field -->
-                        <div class="form-group col-sm-6">
-                            <label for="from_email">From Email:</label>
-                            <input type="email" name="from_email" id="from_email" class="form-control" required>
-                        </div>
-
-                        <!-- Reply To Field -->
-                        <div class="form-group col-sm-6">
-                            <label for="reply_to">Reply To (optional):</label>
-                            <input type="email" name="reply_to" id="reply_to" class="form-control">
-                        </div>
-
-                        <!-- CC Field -->
-                        <div class="form-group col-sm-6">
-                            <label for="cc">CC (optional, comma separated):</label>
-                            <input type="text" name="cc" id="cc" class="form-control">
-                        </div>
-
-                        <!-- BCC Field -->
-                        <div class="form-group col-sm-6">
-                            <label for="bcc">BCC (optional, comma separated):</label>
-                            <input type="text" name="bcc" id="bcc" class="form-control">
-                        </div>
-
-                        <!-- Attachment Field -->
-                        <div class="form-group col-sm-6">
-                            <label for="attachment">Attachment (optional):</label>
-                            <input type="file" name="attachment" id="attachment" class="form-control-file">
-                        </div>
-
-                        <!-- Content Field -->
-                        <div class="form-group col-sm-12">
-                            <label for="content">Email Content:</label>
-                            <textarea name="content" id="content" class="form-control" rows="10" required></textarea>
-                        </div>
-
-                        <!-- Recipients Section -->
-                        <div class="form-group col-sm-12">
-                            <label>Recipients:</label>
-                            <div class="card">
+                    <!-- Additional Email Options -->
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="card bg-light">
                                 <div class="card-header">
-                                    <ul class="nav nav-tabs" id="recipientTabs" role="tablist">
-                                        <li class="nav-item">
-                                            <a class="nav-link active" id="contacts-tab" data-toggle="tab" href="#contacts" role="tab" aria-controls="contacts" aria-selected="true">Contacts</a>
-                                        </li>
-                                        <li class="nav-item">
-                                            <a class="nav-link" id="manual-tab" data-toggle="tab" href="#manual" role="tab" aria-controls="manual" aria-selected="false">Manual</a>
-                                        </li>
-                                    </ul>
+                                    <h5 class="mb-0">
+                                        <button class="btn btn-link collapsed" type="button" data-bs-toggle="collapse" 
+                                                data-bs-target="#additionalOptions" aria-expanded="false">
+                                            <i class="fas fa-cog"></i> Additional Options (Reply-To, CC, BCC, Attachment)
+                                        </button>
+                                    </h5>
                                 </div>
-                                <div class="card-body">
-                                    <div class="tab-content mt-3" id="recipientTabsContent">
-                                        <div class="tab-pane fade show active" id="contacts" role="tabpanel">
-                                            <div class="form-group">
-                                                <input type="text" id="contact-search" class="form-control mb-3" placeholder="Search contacts...">
-                                                <div class="contact-list" style="max-height: 300px; overflow-y: auto;">
-                                                    @foreach($contacts as $contact)
-                                                        <div class="custom-control custom-checkbox mb-2">
-                                                            <input type="checkbox" class="custom-control-input" id="contact-{{ $contact->id }}" name="recipients_contacts[]" value="{{ $contact->id }}">
-                                                            <label class="custom-control-label" for="contact-{{ $contact->id }}">{{ $contact->name }} ({{ $contact->email ?: $contact->phone }})</label>
-                                                        </div>
-                                                    @endforeach
-                                                </div>
-                                                <div class="mt-2">
-                                                    <a href="{{ route('communications.contacts.create') }}" class="btn btn-sm btn-success" target="_blank">
-                                                        <i class="fas fa-plus"></i> Add New Contact
-                                                    </a>
-                                                </div>
+                                <div id="additionalOptions" class="collapse">
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="form-group col-md-6">
+                                                <label for="reply_to"><i class="fas fa-reply"></i> Reply To (Optional)</label>
+                                                <input type="email" name="reply_to" id="reply_to" class="form-control" 
+                                                       placeholder="reply@email.com" value="{{ old('reply_to') }}">
+                                            </div>
+
+                                            <div class="form-group col-md-6">
+                                                <label for="attachment"><i class="fas fa-paperclip"></i> Attachment (Optional)</label>
+                                                <input type="file" name="attachment" id="attachment" class="form-control">
+                                                <small class="form-text text-muted">Max size: 10MB</small>
                                             </div>
                                         </div>
-                                        <div class="tab-pane fade" id="manual" role="tabpanel">
-                                            <div id="manual-recipients">
-                                                <div class="row manual-recipient mb-2">
-                                                    <div class="col-md-4">
-                                                        <input type="text" name="manual_recipients[0][name]" class="form-control" placeholder="Name">
+
+                                        <div class="row">
+                                            <div class="form-group col-md-6">
+                                                <label for="cc"><i class="fas fa-copy"></i> CC (Optional, comma separated)</label>
+                                                <input type="text" name="cc" id="cc" class="form-control" 
+                                                       placeholder="email1@example.com, email2@example.com" value="{{ old('cc') }}">
+                                            </div>
+
+                                            <div class="form-group col-md-6">
+                                                <label for="bcc"><i class="fas fa-user-secret"></i> BCC (Optional, comma separated)</label>
+                                                <input type="text" name="bcc" id="bcc" class="form-control" 
+                                                       placeholder="email1@example.com, email2@example.com" value="{{ old('bcc') }}">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Email Content -->
+                    <div class="row mt-3">
+                        <div class="form-group col-md-12">
+                            <label for="content"><i class="fas fa-pen"></i> Email Content <span class="text-danger">*</span></label>
+                            <textarea name="content" id="content" class="form-control" rows="12" required 
+                                      placeholder="Write your email message here...">{{ old('content') }}</textarea>
+                            <small class="form-text text-muted">
+                                <i class="fas fa-info-circle"></i> You can use HTML formatting if needed.
+                            </small>
+                        </div>
+                    </div>
+
+                    <!-- Recipients Section -->
+                    <div class="row mt-4">
+                        <div class="col-md-12">
+                            <div class="card border-primary">
+                                <div class="card-header bg-primary text-white">
+                                    <h5 class="mb-0"><i class="fas fa-users"></i> Recipients <span class="text-warning">*</span></h5>
+                                </div>
+                                <div class="card-body">
+                                    <ul class="nav nav-tabs mb-3" id="recipientTabs" role="tablist">
+                                        <li class="nav-item" role="presentation">
+                                            <button class="nav-link active" id="contacts-tab" data-bs-toggle="tab" 
+                                                    data-bs-target="#contacts" type="button" role="tab">
+                                                <i class="fas fa-address-book"></i> From Contacts
+                                            </button>
+                                        </li>
+                                        <li class="nav-item" role="presentation">
+                                            <button class="nav-link" id="manual-tab" data-bs-toggle="tab" 
+                                                    data-bs-target="#manual" type="button" role="tab">
+                                                <i class="fas fa-keyboard"></i> Manual Entry
+                                            </button>
+                                        </li>
+                                    </ul>
+
+                                    <div class="tab-content" id="recipientTabsContent">
+                                        <!-- From Contacts Tab -->
+                                        <div class="tab-pane fade show active" id="contacts" role="tabpanel">
+                                            <div class="form-group">
+                                                <div class="input-group mb-3">
+                                                    <span class="input-group-text"><i class="fas fa-search"></i></span>
+                                                    <input type="text" id="contact-search" class="form-control" 
+                                                           placeholder="Search contacts by name or email...">
+                                                </div>
+                                                
+                                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                                    <div>
+                                                        <button type="button" class="btn btn-sm btn-outline-primary" onclick="selectAllContacts()">
+                                                            <i class="fas fa-check-double"></i> Select All
+                                                        </button>
+                                                        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="deselectAllContacts()">
+                                                            <i class="fas fa-times"></i> Deselect All
+                                                        </button>
                                                     </div>
-                                                    <div class="col-md-7">
-                                                        <input type="email" name="manual_recipients[0][email]" class="form-control" placeholder="Email" required>
+                                                    <span class="badge bg-info" id="contactCount">0 selected</span>
+                                                </div>
+
+                                                <div class="contact-list border rounded p-3" style="max-height: 400px; overflow-y: auto; background: #f8f9fa;">
+                                                    @forelse($contacts as $contact)
+                                                        <div class="form-check mb-2 contact-item">
+                                                            <input class="form-check-input contact-checkbox" type="checkbox" 
+                                                                   id="contact-{{ $contact->id }}" 
+                                                                   name="recipients_contacts[]" 
+                                                                   value="{{ $contact->id }}" 
+                                                                   onchange="updateContactCount()">
+                                                            <label class="form-check-label" for="contact-{{ $contact->id }}">
+                                                                <strong>{{ $contact->name }}</strong> 
+                                                                @if($contact->email)
+                                                                    <span class="text-muted">&lt;{{ $contact->email }}&gt;</span>
+                                                                @else
+                                                                    <span class="text-muted">({{ $contact->phone }})</span>
+                                                                @endif
+                                                            </label>
+                                                        </div>
+                                                    @empty
+                                                        <div class="text-center text-muted">
+                                                            <i class="fas fa-inbox fa-3x mb-2"></i>
+                                                            <p>No contacts available</p>
+                                                            <a href="{{ route('communications.contacts.create') }}" class="btn btn-sm btn-primary" target="_blank">
+                                                                <i class="fas fa-plus"></i> Add New Contact
+                                                            </a>
+                                                        </div>
+                                                    @endforelse
+                                                </div>
+
+                                                @if($contacts->count() > 0)
+                                                    <div class="mt-2">
+                                                        <a href="{{ route('communications.contacts.create') }}" class="btn btn-sm btn-success" target="_blank">
+                                                            <i class="fas fa-plus"></i> Add New Contact
+                                                        </a>
+                                                    </div>
+                                                @endif
+                                            </div>
+                                        </div>
+
+                                        <!-- Manual Entry Tab -->
+                                        <div class="tab-pane fade" id="manual" role="tabpanel">
+                                            <div class="alert alert-warning">
+                                                <i class="fas fa-exclamation-triangle"></i> 
+                                                Add recipients manually. At least one valid email address is required.
+                                            </div>
+                                            <div id="manual-recipients">
+                                                <div class="row manual-recipient mb-2 align-items-end">
+                                                    <div class="col-md-5">
+                                                        <label>Name (Optional)</label>
+                                                        <input type="text" name="manual_recipients[0][name]" class="form-control" 
+                                                               placeholder="Recipient name">
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <label>Email <span class="text-danger">*</span></label>
+                                                        <input type="email" name="manual_recipients[0][email]" class="form-control" 
+                                                               placeholder="recipient@example.com">
                                                     </div>
                                                     <div class="col-md-1">
-                                                        <button type="button" class="btn btn-danger remove-recipient"><i class="fas fa-times"></i></button>
+                                                        <button type="button" class="btn btn-danger remove-recipient" 
+                                                                onclick="removeRecipient(this)" disabled>
+                                                            <i class="fas fa-times"></i>
+                                                        </button>
                                                     </div>
                                                 </div>
                                             </div>
-                                            <button type="button" id="add-recipient" class="btn btn-sm btn-primary mt-2">Add Recipient</button>
+                                            <button type="button" id="add-recipient" class="btn btn-primary mt-2" onclick="addRecipient()">
+                                                <i class="fas fa-plus"></i> Add Another Recipient
+                                            </button>
+                                            <span class="badge bg-info ms-2" id="manualCount">1 recipient</span>
                                         </div>
                                     </div>
                                 </div>
@@ -124,55 +238,144 @@
                     </div>
                 </div>
 
-                <div class="card-footer">
-                    <button type="submit" class="btn btn-primary">Save</button>
-                    <a href="{{ route('communications.email.index') }}" class="btn btn-default">Cancel</a>
+                <div class="card-footer bg-light">
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        <i class="fas fa-paper-plane"></i> Save & Send Later
+                    </button>
+                    <button type="button" class="btn btn-success btn-lg" onclick="sendNow()">
+                        <i class="fas fa-rocket"></i> Send Now
+                    </button>
+                    <a href="{{ route('communications.email.index') }}" class="btn btn-secondary">
+                        <i class="fas fa-times"></i> Cancel
+                    </a>
                 </div>
             </form>
         </div>
     </div>
 @endsection
 
-@push('page_scripts')
+@section('scripts')
 <script>
-    $(document).ready(function() {
-        // Initialize rich text editor for email content
-        if (typeof CKEDITOR !== 'undefined') {
-            CKEDITOR.replace('content');
-        }
-        
-        // User search functionality
-        $("#user-search").on("keyup", function() {
-            var value = $(this).val().toLowerCase();
-            $(".custom-checkbox").filter(function() {
-                $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
-            });
-        });
-        
-        // Add manual recipient
-        let recipientCount = 1;
-        $("#add-recipient").click(function() {
-            let newRecipient = `
-                <div class="row manual-recipient mb-2">
-                    <div class="col-md-4">
-                        <input type="text" name="manual_recipients[${recipientCount}][name]" class="form-control" placeholder="Name">
-                    </div>
-                    <div class="col-md-7">
-                        <input type="email" name="manual_recipients[${recipientCount}][email]" class="form-control" placeholder="Email" required>
-                    </div>
-                    <div class="col-md-1">
-                        <button type="button" class="btn btn-danger remove-recipient"><i class="fas fa-times"></i></button>
-                    </div>
-                </div>
-            `;
-            $("#manual-recipients").append(newRecipient);
-            recipientCount++;
-        });
-        
-        // Remove manual recipient
-        $(document).on("click", ".remove-recipient", function() {
-            $(this).closest(".manual-recipient").remove();
-        });
+// Contact search functionality
+document.getElementById('contact-search').addEventListener('keyup', function() {
+    const searchTerm = this.value.toLowerCase();
+    const contacts = document.querySelectorAll('.contact-item');
+    
+    contacts.forEach(contact => {
+        const text = contact.textContent.toLowerCase();
+        contact.style.display = text.includes(searchTerm) ? 'block' : 'none';
     });
+});
+
+// Update contact count
+function updateContactCount() {
+    const count = document.querySelectorAll('.contact-checkbox:checked').length;
+    document.getElementById('contactCount').textContent = count + ' selected';
+}
+
+// Select all contacts
+function selectAllContacts() {
+    const checkboxes = document.querySelectorAll('.contact-checkbox');
+    checkboxes.forEach(cb => {
+        if (cb.closest('.contact-item').style.display !== 'none') {
+            cb.checked = true;
+        }
+    });
+    updateContactCount();
+}
+
+// Deselect all contacts
+function deselectAllContacts() {
+    document.querySelectorAll('.contact-checkbox').forEach(cb => cb.checked = false);
+    updateContactCount();
+}
+
+// Manual recipients management
+let recipientCount = 1;
+
+function addRecipient() {
+    const html = `
+        <div class="row manual-recipient mb-2 align-items-end">
+            <div class="col-md-5">
+                <label>Name (Optional)</label>
+                <input type="text" name="manual_recipients[${recipientCount}][name]" class="form-control" 
+                       placeholder="Recipient name">
+            </div>
+            <div class="col-md-6">
+                <label>Email <span class="text-danger">*</span></label>
+                <input type="email" name="manual_recipients[${recipientCount}][email]" class="form-control" 
+                       placeholder="recipient@example.com">
+            </div>
+            <div class="col-md-1">
+                <button type="button" class="btn btn-danger remove-recipient" onclick="removeRecipient(this)">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+    `;
+    document.getElementById('manual-recipients').insertAdjacentHTML('beforeend', html);
+    recipientCount++;
+    updateManualCount();
+}
+
+function removeRecipient(button) {
+    button.closest('.manual-recipient').remove();
+    updateManualCount();
+}
+
+function updateManualCount() {
+    const count = document.querySelectorAll('.manual-recipient').length;
+    document.getElementById('manualCount').textContent = count + (count === 1 ? ' recipient' : ' recipients');
+    
+    // Enable/disable first remove button based on count
+    const firstRemove = document.querySelector('.manual-recipient .remove-recipient');
+    if (firstRemove) {
+        firstRemove.disabled = count === 1;
+    }
+}
+
+// Send now functionality
+function sendNow() {
+    if (confirm('Are you sure you want to send this email now to all selected recipients?')) {
+        const form = document.getElementById('emailForm');
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'send_now';
+        input.value = '1';
+        form.appendChild(input);
+        form.submit();
+    }
+}
+
+// Form validation before submit
+document.getElementById('emailForm').addEventListener('submit', function(e) {
+    const contactsChecked = document.querySelectorAll('.contact-checkbox:checked').length;
+    const manualRecipients = document.querySelectorAll('.manual-recipient input[type="email"]');
+    let manualCount = 0;
+    
+    manualRecipients.forEach(input => {
+        if (input.value.trim()) manualCount++;
+    });
+    
+    if (contactsChecked === 0 && manualCount === 0) {
+        e.preventDefault();
+        alert('Please select at least one recipient from contacts or add a manual recipient.');
+        return false;
+    }
+});
+
+// Character counter for email content
+const contentTextarea = document.getElementById('content');
+if (contentTextarea) {
+    const counter = document.createElement('small');
+    counter.className = 'form-text text-muted';
+    counter.id = 'contentCounter';
+    contentTextarea.parentNode.appendChild(counter);
+    
+    contentTextarea.addEventListener('input', function() {
+        const length = this.value.length;
+        counter.textContent = `${length} characters`;
+    });
+}
 </script>
-@endpush
+@endsection
