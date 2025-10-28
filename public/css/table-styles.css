@@ -1,0 +1,81 @@
+/* Table Styles for Torchbearer Laravel */
+
+/* Base table styles */
+.table {
+    width: 100%;
+    margin-bottom: 1rem;
+    color: #212529;
+    border-collapse: collapse;
+}
+
+/* Table header styles */
+.table .thead-light th {
+    color: #495057;
+    background-color: #f8f9fa;
+    border-color: #dee2e6;
+    border-bottom-width: 2px;
+    padding: 0.75rem;
+    vertical-align: middle;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+/* Table body styles */
+.table tbody td {
+    padding: 0.75rem;
+    vertical-align: middle;
+    border-top: 1px solid #dee2e6;
+}
+
+/* Hover effect */
+.table-hover tbody tr:hover {
+    background-color: rgba(0, 0, 0, 0.03);
+}
+
+/* Font weight for primary column */
+.font-weight-medium {
+    font-weight: 500;
+}
+
+/* Badge styles */
+.badge {
+    display: inline-block;
+    padding: 0.25em 0.6em;
+    font-size: 75%;
+    font-weight: 500;
+    line-height: 1;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: baseline;
+    border-radius: 0.25rem;
+}
+
+.badge-light {
+    color: #212529;
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+}
+
+/* Action buttons */
+.btn-group {
+    display: inline-flex;
+}
+
+.btn-group .btn {
+    margin-right: 0.25rem;
+}
+
+/* Responsive tables */
+.table-responsive {
+    display: block;
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Compact tables for mobile */
+@media (max-width: 768px) {
+    .table td, .table th {
+        padding: 0.5rem;
+    }
+}
