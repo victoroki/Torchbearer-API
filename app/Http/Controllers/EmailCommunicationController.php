@@ -80,7 +80,6 @@ class EmailCommunicationController extends Controller
             ]);
 
             // Process contact recipients
-            $recipientCount = 0;
             if ($request->has('recipients_contacts')) {
                 foreach ($request->input('recipients_contacts', []) as $contactId) {
                     $contact = \App\Models\CommunicationContact::find($contactId);
@@ -93,7 +92,6 @@ class EmailCommunicationController extends Controller
                             'name' => $contact->name,
                             'status' => 'pending',
                         ]);
-                        $recipientCount++;
                     }
                 }
             }
@@ -110,34 +108,19 @@ class EmailCommunicationController extends Controller
                             'name' => $manualRecipient['name'] ?? null,
                             'status' => 'pending',
                         ]);
-                        $recipientCount++;
                     }
                 }
-            }
-            
-            // Check if we have recipients
-            if ($recipientCount === 0) {
-                $communication->delete();
-                return redirect()->back()
-                    ->withInput()
-                    ->with('error', 'Please add at least one recipient.');
             }
             
             // Log the email communication creation
             Log::info('Email communication created', [
                 'id' => $communication->id,
                 'subject' => $request->subject,
-                'recipients' => $recipientCount,
                 'user_id' => Auth::id(),
             ]);
             
-            // If send_now is true, send immediately
-            if ($request->has('send_now') && $request->send_now == '1') {
-                return $this->sendEmails($communication->id);
-            }
-            
-            return redirect()->route('communications.email.show', $communication->id)
-                ->with('success', "Email created successfully with {$recipientCount} recipient(s). Click 'Send' to deliver.");
+            return redirect()->route('communications.email.index')
+                ->with('success', 'Email communication created successfully.');
         } catch (\Exception $e) {
             Log::error('Error creating email communication: ' . $e->getMessage());
             return redirect()->back()
@@ -160,6 +143,174 @@ class EmailCommunicationController extends Controller
         }
         
         return view('communications.email.show', compact('communication'));
+    }
+
+    /**
+     * Show the form for editing the specified email communication.
+     */
+    public function edit($id)
+    {
+        $communication = Communication::with(['emailDetails', 'recipients'])
+            ->findOrFail($id);
+            
+        if ($communication->type !== 'email') {
+            return redirect()->route('communications.email.index')
+                ->with('error', 'The requested communication is not an email.');
+        }
+
+        if ($communication->status !== 'draft') {
+            return redirect()->route('communications.email.show', $id)
+                ->with('error', 'Only draft emails can be edited.');
+        }
+        
+        $contacts = \App\Models\CommunicationContact::all();
+        return view('communications.email.edit', compact('communication', 'contacts'));
+    }
+
+    /**
+     * Update the specified email communication in storage.
+     */
+    public function update(Request $request, $id)
+    {
+        try {
+            $communication = Communication::findOrFail($id);
+            
+            if ($communication->type !== 'email') {
+                return redirect()->route('communications.email.index')
+                    ->with('error', 'The requested communication is not an email.');
+            }
+
+            if ($communication->status !== 'draft') {
+                return redirect()->route('communications.email.show', $id)
+                    ->with('error', 'Only draft emails can be updated.');
+            }
+
+            $request->validate([
+                'subject' => 'required|string|max:255',
+                'content' => 'required|string',
+                'from_email' => 'required|email',
+                'from_name' => 'nullable|string|max:255',
+                'reply_to' => 'nullable|email',
+                'cc' => 'nullable|string',
+                'bcc' => 'nullable|string',
+                'attachment' => 'nullable|file|max:10240',
+            ]);
+
+            $communication->update([
+                'subject' => $request->subject,
+                'content' => $request->content,
+            ]);
+
+            $attachmentPath = $communication->emailDetails->attachment_path;
+            if ($request->hasFile('attachment')) {
+                if ($attachmentPath) {
+                    Storage::delete($attachmentPath);
+                }
+                $attachmentPath = $request->file('attachment')->store('email_attachments');
+            }
+
+            $communication->emailDetails->update([
+                'from_email' => $request->from_email,
+                'from_name' => $request->from_name,
+                'reply_to' => $request->reply_to,
+                'cc' => $request->cc,
+                'bcc' => $request->bcc,
+                'attachment_path' => $attachmentPath,
+            ]);
+
+            $communication->recipients()->delete();
+
+            if ($request->has('recipients_contacts')) {
+                foreach ($request->input('recipients_contacts', []) as $contactId) {
+                    $contact = \App\Models\CommunicationContact::find($contactId);
+                    if ($contact && $contact->email) {
+                        CommunicationRecipient::create([
+                            'communication_id' => $communication->id,
+                            'recipient_type' => 'contact',
+                            'recipient_id' => $contact->id,
+                            'email' => $contact->email,
+                            'name' => $contact->name,
+                            'status' => 'pending',
+                        ]);
+                    }
+                }
+            }
+
+            if ($request->has('manual_recipients')) {
+                foreach ($request->input('manual_recipients', []) as $manualRecipient) {
+                    if (!empty($manualRecipient['email'])) {
+                        CommunicationRecipient::create([
+                            'communication_id' => $communication->id,
+                            'recipient_type' => 'manual',
+                            'recipient_id' => null,
+                            'email' => $manualRecipient['email'],
+                            'name' => $manualRecipient['name'] ?? null,
+                            'status' => 'pending',
+                        ]);
+                    }
+                }
+            }
+            
+            Log::info('Email communication updated', [
+                'id' => $communication->id,
+                'subject' => $request->subject,
+                'user_id' => Auth::id(),
+            ]);
+            
+            return redirect()->route('communications.email.show', $communication->id)
+                ->with('success', 'Email communication updated successfully.');
+        } catch (\Exception $e) {
+            Log::error('Error updating email communication: ' . $e->getMessage());
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Failed to update email communication: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Remove the specified email communication from storage.
+     */
+    public function destroy($id)
+    {
+        try {
+            $communication = Communication::findOrFail($id);
+            
+            if ($communication->type !== 'email') {
+                return redirect()->route('communications.email.index')
+                    ->with('error', 'The requested communication is not an email.');
+            }
+
+            if ($communication->emailDetails && $communication->emailDetails->attachment_path) {
+                Storage::delete($communication->emailDetails->attachment_path);
+            }
+
+            if ($communication->emailDetails) {
+                $communication->emailDetails->delete();
+            }
+
+            $communication->recipients()->delete();
+            $communication->delete();
+
+            Log::info('Email communication deleted', [
+                'id' => $id,
+                'user_id' => Auth::id(),
+            ]);
+
+            return redirect()->route('communications.email.index')
+                ->with('success', 'Email communication deleted successfully.');
+        } catch (\Exception $e) {
+            Log::error('Error deleting email communication: ' . $e->getMessage());
+            return redirect()->back()
+                ->with('error', 'Failed to delete email communication: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Route method for sending emails.
+     */
+    public function send($id)
+    {
+        return $this->sendEmails($id);
     }
 
     /**

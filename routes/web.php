@@ -1,6 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Auth;
 
 /*
 |--------------------------------------------------------------------------
@@ -72,8 +74,11 @@ Route::middleware(['auth'])->group(function () {
             Route::get('/', [App\Http\Controllers\EmailCommunicationController::class, 'index'])->name('index');
             Route::get('/create', [App\Http\Controllers\EmailCommunicationController::class, 'create'])->name('create');
             Route::post('/', [App\Http\Controllers\EmailCommunicationController::class, 'store'])->name('store');
-            Route::get('/{communication}', [App\Http\Controllers\EmailCommunicationController::class, 'show'])->name('show');
+            Route::get('/{communication}/edit', [App\Http\Controllers\EmailCommunicationController::class, 'edit'])->name('edit');
+            Route::put('/{communication}', [App\Http\Controllers\EmailCommunicationController::class, 'update'])->name('update');
+            Route::delete('/{communication}', [App\Http\Controllers\EmailCommunicationController::class, 'destroy'])->name('destroy');
             Route::post('/{communication}/send', [App\Http\Controllers\EmailCommunicationController::class, 'send'])->name('send');
+            Route::get('/{communication}', [App\Http\Controllers\EmailCommunicationController::class, 'show'])->name('show');
         });
         
         // WhatsApp Communications
