@@ -29,6 +29,14 @@ class Communication extends Model
     }
 
     /**
+     * Get the creator of the communication (alias for user).
+     */
+    public function creator(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
+    /**
      * Get the email details for this communication.
      */
     public function emailDetails(): HasOne
