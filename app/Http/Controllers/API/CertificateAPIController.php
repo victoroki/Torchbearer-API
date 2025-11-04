@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use App\Mail\CertificateMail;
+use App\Mail\CertificateMailKenya; 
 use Barryvdh\DomPDF\Facade\Pdf;
 
 class CertificateAPIController extends AppBaseController
@@ -78,7 +79,7 @@ class CertificateAPIController extends AppBaseController
             // Refresh the certificate to ensure it's properly loaded
             $certificate->refresh();
 
-            // FIXED: Remove the $course parameter - it's fetched inside CertificateMail
+            // Queue the email - CertificateMail fetches the course internally
             Mail::to($request->recipient_email)->queue(new CertificateMail($certificate));
 
             $certificate->update([
@@ -98,30 +99,64 @@ class CertificateAPIController extends AppBaseController
         }
     }
 
-    private function getImageAsBase64(string $url): string
+    public function registerKenya(Request $request): JsonResponse
     {
+        $validator = Validator::make($request->all(), [
+            'recipient_name' => 'required|string|max:255',
+            'recipient_email' => 'required|email|max:255',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation Error',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
         try {
-            $ch = curl_init($url);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-            curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+            do {
+                $certificateId = 'CERT-KE-' . strtoupper(Str::random(10));
+            } while (Certificate::where('certificate_id', $certificateId)->exists());
 
-            $imageData = curl_exec($ch);
-            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-            curl_close($ch);
+            // Hardcoded course details for Kenya certificates
+            $hardcodedCourseName = 'Solar Energy Systems Design';
+            $hardcodedCourseDescription = 'Successfully completed comprehensive training in solar photovoltaic system design, installation best practices, and renewable energy solutions for Kenya.';
 
-            if ($httpCode !== 200 || !$imageData) {
-                throw new \Exception('Failed to fetch image');
-            }
+            // Create certificate with only the fields that exist in your table
+            $certificateData = [
+                'certificate_id' => $certificateId,
+                'recipient_name' => $request->recipient_name,
+                'recipient_email' => $request->recipient_email,
+                'course_name' => $hardcodedCourseName,
+            ];
 
-            $base64 = base64_encode($imageData);
-            $finfo = new \finfo(FILEINFO_MIME_TYPE);
-            $mimeType = $finfo->buffer($imageData);
+            $certificate = $this->certificateRepository->create($certificateData);
+            $certificate->refresh();
 
-            return "data:$mimeType;base64,$base64";
+            // Queue the email with hardcoded description
+            // The CertificateMailKenya class will handle image fetching when the job processes
+            Mail::to($request->recipient_email)->queue(
+                new CertificateMailKenya($certificate, $hardcodedCourseDescription)
+            );
+
+            return $this->sendResponse(
+                array_merge($certificate->toArray(), [
+                    'course_description' => $hardcodedCourseDescription,
+                    'status' => 'queued'
+                ]),
+                'Certificate registered successfully. Email is being processed.'
+            );
         } catch (\Exception $e) {
-            return 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
+            \Log::error('Kenya certificate registration error', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            if (isset($certificate)) {
+                $this->certificateRepository->delete($certificate->id);
+            }
+            return $this->sendError('Failed to register certificate: ' . $e->getMessage(), 500);
         }
     }
 
@@ -134,7 +169,7 @@ class CertificateAPIController extends AppBaseController
                 return $this->sendError('Certificate not found', 404);
             }
 
-            // FIXED: Remove the $course parameter
+            // Queue the email
             Mail::to($certificate->recipient_email)->queue(new CertificateMail($certificate));
 
             $certificate->update([

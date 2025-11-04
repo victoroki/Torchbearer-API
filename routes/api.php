@@ -56,3 +56,4 @@ Route::resource('users', App\Http\Controllers\API\UserAPIController::class)
     ->except(['create', 'edit']);
 
 Route::post('/certificates/register', [App\Http\Controllers\API\CertificateAPIController::class, 'register']);
+Route::post('/certificates/kenstane', [App\Http\Controllers\API\CertificateAPIController::class, 'registerKenya']);
