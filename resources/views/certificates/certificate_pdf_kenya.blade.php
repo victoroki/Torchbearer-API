@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Solar Design Certificate</title>
+    <title>Renewable Energy Certificate</title>
     <style>
         @page {
             margin: 0;
@@ -16,12 +16,13 @@
         }
 
         body {
-            font-family: 'DejaVu Sans', Arial, sans-serif;
+            font-family: 'Segoe UI', 'DejaVu Sans', Arial, sans-serif;
             margin: 0;
             padding: 0;
             width: 297mm;
             height: 210mm;
             overflow: hidden;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
         }
 
         .certificate-container {
@@ -30,312 +31,456 @@
             background: white;
             position: relative;
             overflow: hidden;
-            page-break-after: avoid;
-            page-break-before: avoid;
-            page-break-inside: avoid;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
         }
 
-        .bg-element {
+        /* Modern gradient background */
+        .bg-gradient {
             position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 180px;
+            background: linear-gradient(135deg, #006600 0%, #00aa00 50%, #FFD700 100%);
+            opacity: 0.08;
             z-index: 1;
         }
 
-        /* Simplified Kenyan-themed triangles without complex clipping */
-        .bg-kenya-top-left {
-            top: 0;
-            left: 0;
-            width: 0;
-            height: 0;
-            border-style: solid;
-            border-width: 120px 150px 0 0;
-            border-color: #000000 transparent transparent transparent;
-        }
-
-        .bg-kenya-top-right {
-            top: 0;
-            right: 0;
-            width: 0;
-            height: 0;
-            border-style: solid;
-            border-width: 0 140px 110px 0;
-            border-color: transparent #BB0000 transparent transparent;
-        }
-
-        .bg-kenya-bottom-left {
+        .bg-gradient-bottom {
+            position: absolute;
             bottom: 0;
             left: 0;
-            width: 0;
-            height: 0;
-            border-style: solid;
-            border-width: 0 0 130px 170px;
-            border-color: transparent transparent #006600 transparent;
+            right: 0;
+            height: 120px;
+            background: linear-gradient(45deg, #BB0000 0%, #FF6B6B 100%);
+            opacity: 0.05;
+            z-index: 1;
         }
 
-        /* White accent stripes */
-        .white-stripe-top {
+        /* Decorative elements */
+        .deco-circle {
             position: absolute;
-            top: 50px;
-            left: 80px;
-            width: 180px;
-            height: 3px;
-            background: white;
-            z-index: 6;
+            border-radius: 50%;
+            z-index: 2;
         }
 
-        .white-stripe-bottom {
-            position: absolute;
-            bottom: 50px;
+        .deco-circle-1 {
+            top: -60px;
             right: 80px;
-            width: 180px;
-            height: 3px;
-            background: white;
-            z-index: 6;
+            width: 200px;
+            height: 200px;
+            background: radial-gradient(circle, rgba(0,102,0,0.1) 0%, transparent 70%);
         }
 
-        .corner-decoration {
+        .deco-circle-2 {
+            bottom: -80px;
+            left: 60px;
+            width: 240px;
+            height: 240px;
+            background: radial-gradient(circle, rgba(187,0,0,0.08) 0%, transparent 70%);
+        }
+
+        .deco-circle-3 {
+            top: 50%;
+            right: -100px;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(255,215,0,0.06) 0%, transparent 70%);
+        }
+
+        /* Border frame */
+        .certificate-border {
             position: absolute;
-            z-index: 6;
-            width: 45px;
-            height: 45px;
+            top: 30px;
+            left: 40px;
+            right: 40px;
+            bottom: 30px;
+            border: 3px solid transparent;
+            background: linear-gradient(white, white) padding-box,
+                        linear-gradient(135deg, #006600, #BB0000, #FFD700) border-box;
+            z-index: 3;
+            box-shadow: inset 0 0 0 2px white;
         }
 
-        .corner-decoration.top-left {
-            top: 25px;
-            left: 25px;
-            border-left: 2px solid #BB0000;
-            border-top: 2px solid #BB0000;
-        }
-
-        .corner-decoration.top-right {
-            top: 25px;
-            right: 25px;
-            border-right: 2px solid #006600;
-            border-top: 2px solid #006600;
-        }
-
-        .corner-decoration.bottom-left {
-            bottom: 25px;
-            left: 25px;
-            border-left: 2px solid #006600;
-            border-bottom: 2px solid #006600;
-        }
-
-        .corner-decoration.bottom-right {
-            bottom: 25px;
-            right: 25px;
-            border-right: 2px solid #BB0000;
-            border-bottom: 2px solid #BB0000;
-        }
-
-        /* Simplified border without radius to avoid potential rendering issues */
-        .flag-border {
+        /* Inner decorative corners */
+        .corner-accent {
             position: absolute;
-            top: 25px;
-            left: 25px;
-            right: 25px;
-            bottom: 25px;
-            border: 3px solid #000000;
-            z-index: 5;
-            background: white;
+            width: 60px;
+            height: 60px;
+            z-index: 4;
         }
 
-        .certificate-content {
+        .corner-accent::before,
+        .corner-accent::after {
+            content: '';
             position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            z-index: 10;
-            display: table;
-            width: 100%;
-            height: 100%;
-            padding: 60px 80px 80px 80px;
-            text-align: center;
+            background: linear-gradient(135deg, #006600, #00aa00);
         }
 
-        .content-wrapper {
-            display: table-cell;
-            vertical-align: middle;
-            text-align: center;
-        }
-
-        /* Logo placeholder text instead of image */
-        .header-logo {
-            position: absolute;
+        .corner-accent.top-left {
             top: 45px;
             left: 55px;
-            z-index: 15;
-            font-size: 12px;
-            color: #666;
+        }
+
+        .corner-accent.top-left::before {
+            top: 0;
+            left: 0;
+            width: 3px;
+            height: 30px;
+        }
+
+        .corner-accent.top-left::after {
+            top: 0;
+            left: 0;
+            width: 30px;
+            height: 3px;
+        }
+
+        .corner-accent.top-right {
+            top: 45px;
+            right: 55px;
+        }
+
+        .corner-accent.top-right::before {
+            top: 0;
+            right: 0;
+            width: 3px;
+            height: 30px;
+        }
+
+        .corner-accent.top-right::after {
+            top: 0;
+            right: 0;
+            width: 30px;
+            height: 3px;
+        }
+
+        .corner-accent.bottom-left {
+            bottom: 45px;
+            left: 55px;
+        }
+
+        .corner-accent.bottom-left::before {
+            bottom: 0;
+            left: 0;
+            width: 3px;
+            height: 30px;
+        }
+
+        .corner-accent.bottom-left::after {
+            bottom: 0;
+            left: 0;
+            width: 30px;
+            height: 3px;
+        }
+
+        .corner-accent.bottom-right {
+            bottom: 45px;
+            right: 55px;
+        }
+
+        .corner-accent.bottom-right::before {
+            bottom: 0;
+            right: 0;
+            width: 3px;
+            height: 30px;
+        }
+
+        .corner-accent.bottom-right::after {
+            bottom: 0;
+            right: 0;
+            width: 30px;
+            height: 3px;
+        }
+
+        /* Logo area */
+        .header-section {
+            position: absolute;
+            top: 55px;
+            left: 0;
+            right: 0;
+            z-index: 10;
+            text-align: center;
+        }
+
+        .institute-logo {
+            display: inline-block;
+            margin-bottom: 8px;
+        }
+
+        .logo-circle {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, #006600, #00aa00);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+            box-shadow: 0 4px 15px rgba(0,102,0,0.3);
+        }
+
+        .logo-text {
+            color: white;
+            font-size: 26px;
+            font-weight: 700;
+        }
+
+        .institute-name {
+            font-size: 13px;
+            font-weight: 600;
+            color: #2d2d2d;
+            letter-spacing: 1.5px;
+            margin-top: 8px;
+        }
+
+        /* Main content */
+        .certificate-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+            text-align: center;
+            width: 85%;
+            max-width: 900px;
         }
 
         .main-title {
-            font-size: 62px;
+            font-size: 68px;
             font-weight: 700;
-            letter-spacing: 5px;
-            color: #000000;
-            margin-bottom: 6px;
+            letter-spacing: 12px;
+            background: linear-gradient(135deg, #006600, #00aa00, #FFD700);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 8px;
+            text-transform: uppercase;
         }
 
         .subtitle {
-            font-size: 18px;
+            font-size: 20px;
             font-weight: 400;
-            letter-spacing: 3px;
+            letter-spacing: 4px;
             color: #BB0000;
-            margin-bottom: 35px;
+            margin-bottom: 40px;
             text-transform: uppercase;
         }
 
         .presented-to {
-            font-size: 13px;
+            font-size: 14px;
             font-weight: 600;
             letter-spacing: 2px;
-            color: #006600;
-            margin-bottom: 15px;
+            color: #555;
+            margin-bottom: 18px;
             text-transform: uppercase;
         }
 
         .recipient-name {
-            font-size: 48px;
-            font-weight: 400;
-            font-style: italic;
-            color: #BB0000;
-            margin-bottom: 25px;
-            line-height: 1.2;
+            font-size: 52px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 30px;
+            line-height: 1.3;
+            position: relative;
+            display: inline-block;
+        }
+
+        .recipient-name::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 200px;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #006600, transparent);
         }
 
         .course-description {
             font-size: 15px;
-            color: #2d2d2d;
-            line-height: 1.5;
-            max-width: 540px;
-            margin: 0 auto 35px auto;
+            color: #444;
+            line-height: 1.8;
+            max-width: 700px;
+            margin: 0 auto 40px auto;
             text-align: center;
         }
 
-        .signatures-table {
-            width: 100%;
-            max-width: 600px;
-            margin: 0 auto;
+        .energy-topics {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px 20px;
+            max-width: 650px;
+            margin: 20px auto 40px;
+            text-align: left;
+            font-size: 12px;
+            color: #555;
+        }
+
+        .energy-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .energy-icon {
+            font-size: 16px;
+        }
+
+        /* Signature section */
+        .signature-section {
+            margin-top: 50px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            gap: 80px;
+        }
+
+        .signature-block {
             text-align: center;
-        }
-
-        .signatures-table td {
-            width: 50%;
-            vertical-align: bottom;
-            padding: 0 20px;
-        }
-
-        .signature-name {
-            margin-bottom: 8px;
-            font-size: 14px;
-            color: #1a1a1a;
         }
 
         .signature-line {
-            width: 180px;
-            height: 1px;
-            background: #333;
-            margin: 8px auto;
+            width: 220px;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #333, transparent);
+            margin: 12px auto 8px;
+        }
+
+        .signature-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 4px;
         }
 
         .signature-title {
-            font-size: 12px;
+            font-size: 13px;
             font-weight: 500;
-            color: #444;
-            margin-top: 5px;
-        }
-
-        .signature-subtitle {
-            font-size: 10px;
             color: #666;
-            margin-top: 2px;
+            letter-spacing: 0.5px;
         }
 
-        /* Stamp placeholder text instead of image */
-        .stamp-placeholder {
-            width: 110px;
-            height: 110px;
-            display: block;
-            margin: 0 auto 10px;
-            border: 2px dashed #ccc;
-            text-align: center;
-            line-height: 110px;
-            font-size: 10px;
-            color: #999;
-        }
-
-        .certificate-date {
+        /* Footer info */
+        .certificate-footer {
             position: absolute;
-            bottom: 35px;
-            right: 55px;
+            bottom: 40px;
+            left: 70px;
+            right: 70px;
+            display: flex;
+            justify-content: space-between;
+            z-index: 10;
             font-size: 11px;
-            color: #666;
-            z-index: 15;
+            color: #888;
         }
 
-        .certificate-id {
-            position: absolute;
-            bottom: 35px;
-            left: 55px;
-            font-size: 11px;
-            color: #666;
-            z-index: 15;
+        .footer-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .footer-label {
+            font-weight: 600;
+            color: #555;
         }
     </style>
 </head>
 <body>
     <div class="certificate-container">
-        <div class="bg-element bg-kenya-top-left"></div>
-        <div class="bg-element bg-kenya-top-right"></div>
-        <div class="bg-element bg-kenya-bottom-left"></div>
+        <!-- Background decorations -->
+        <div class="bg-gradient"></div>
+        <div class="bg-gradient-bottom"></div>
+        <div class="deco-circle deco-circle-1"></div>
+        <div class="deco-circle deco-circle-2"></div>
+        <div class="deco-circle deco-circle-3"></div>
 
-        <div class="white-stripe-top"></div>
-        <div class="white-stripe-bottom"></div>
+        <!-- Border -->
+        <div class="certificate-border"></div>
 
-        <div class="corner-decoration top-left"></div>
-        <div class="corner-decoration top-right"></div>
-        <div class="corner-decoration bottom-left"></div>
-        <div class="corner-decoration bottom-right"></div>
+        <!-- Corner accents -->
+        <div class="corner-accent top-left"></div>
+        <div class="corner-accent top-right"></div>
+        <div class="corner-accent bottom-left"></div>
+        <div class="corner-accent bottom-right"></div>
 
-        <div class="flag-border"></div>
-
-        <div class="header-logo">
-            Institute Logo
+        <!-- Header with logo -->
+        <div class="header-section">
+            <div class="institute-logo">
+                <div class="logo-circle">
+                    <div class="logo-text">KEL</div>
+                </div>
+            </div>
+            <div class="institute-name">KENTANE ENERGY LIMITED</div>
         </div>
 
+        <!-- Main content -->
         <div class="certificate-content">
-            <div class="content-wrapper">
-                <h1 class="main-title">CERTIFICATE</h1>
-                <h2 class="subtitle">of achievement</h2>
+            <h1 class="main-title">CERTIFICATE</h1>
+            <h2 class="subtitle">of Participation</h2>
 
-                <p class="presented-to">this certificate is presented to</p>
+            <p class="presented-to">This certificate is proudly presented to</p>
 
-                <h3 class="recipient-name">{{ $recipientName }}</h3>
+            <h3 class="recipient-name">{{ $recipientName }}</h3>
 
-                <div class="course-description">{{ $courseDescription }}</div>
+            <div class="course-description">
+                For successfully participating in the <strong>Renewable Energy Webinar</strong> conducted on 
+                <strong>5th November 2025</strong> from 1700hrs to 1900hrs, led by <strong>Parvez Butt</strong>, 
+                Principal Risk Powergen Engineer, covering essential renewable energy technologies.
+            </div>
 
-                <table class="signatures-table">
-                    <tr>
-                        <td>
-                            <div class="signature-name">{{ $trainerName }}</div>
-                            <div class="signature-line"></div>
-                            <div class="signature-title">Technical Instructor</div>
-                        </td>
-                        <td>
-                            <div class="stamp-placeholder">Official Stamp</div>
-                            <div class="signature-name">Ondora Dalton</div>
-                            <div class="signature-line"></div>
-                            <div class="signature-title">Director</div>
-                            <div class="signature-subtitle">Torchbearer Institute of Technologies</div>
-                        </td>
-                    </tr>
-                </table>
+            <div class="energy-topics">
+                <div class="energy-item">
+                    <span class="energy-icon">☀️</span>
+                    <span>Solar Energy (Photovoltaic & Thermal)</span>
+                </div>
+                <div class="energy-item">
+                    <span class="energy-icon">💨</span>
+                    <span>Wind Energy (Turbine Systems)</span>
+                </div>
+                <div class="energy-item">
+                    <span class="energy-icon">🌊</span>
+                    <span>Hydropower (Dams & Run-of-River)</span>
+                </div>
+                <div class="energy-item">
+                    <span class="energy-icon">🌍</span>
+                    <span>Geothermal Energy</span>
+                </div>
+                <div class="energy-item">
+                    <span class="energy-icon">🌿</span>
+                    <span>Biomass Energy & Biofuels</span>
+                </div>
+                <div class="energy-item">
+                    <span class="energy-icon">⚡</span>
+                    <span>Ocean Energy (Tidal & Wave)</span>
+                </div>
+                <div class="energy-item">
+                    <span class="energy-icon">💧</span>
+                    <span>Green Hydrogen Production</span>
+                </div>
+            </div>
+
+            <!-- Signature -->
+            <div class="signature-section">
+                <div class="signature-block">
+                    <div class="signature-line"></div>
+                    <div class="signature-name">Pervez Butt</div>
+                    <div class="signature-title">Technical Instructor</div>
+                </div>
             </div>
         </div>
 
-        <div class="certificate-id">ID: {{ $certificateId }}</div>
-        <div class="certificate-date">Date: {{ $issueDate }}</div>
+        <!-- Footer -->
+        <div class="certificate-footer">
+            <div class="footer-item">
+                <span class="footer-label">Certificate ID:</span>
+                <span>{{ $certificateId }}</span>
+            </div>
+            <div class="footer-item">
+                <span class="footer-label">Issue Date:</span>
+                <span>{{ $issueDate }}</span>
+            </div>
+        </div>
     </div>
 </body>
 </html>

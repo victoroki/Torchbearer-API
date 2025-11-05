@@ -49,7 +49,7 @@ class CertificateMailKenya extends Mailable implements ShouldQueue
     public function attachments(): array
     {
         // Fetch images when the job is processed (not in constructor)
-        $logoBase64 = $this->getImageAsBase64('https://i.postimg.cc/nhdkjKJr/image-removebg-preview-1.png');
+        $logoBase64 = $this->getImageAsBase64('https://i.postimg.cc/KjwQ2TFM/kenstane-logo.png');
         $stampBase64 = $this->getImageAsBase64('https://i.postimg.cc/DwBTSN0H/Untitled-design.png');
         $qrCodeBase64 = $this->getImageAsBase64('https://i.postimg.cc/nhKqCDbr/My-QR-Code-1-1024.png');
 
