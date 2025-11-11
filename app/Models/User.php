@@ -3,13 +3,14 @@
 namespace App\Models;
 
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Support\Facades\Hash;
 
 class User extends Authenticatable
 {
     public $table = 'users';
 
     public $fillable = [
-        'id',
+        'name',
         'username',
         'email',
         'password',
@@ -18,6 +19,7 @@ class User extends Authenticatable
     ];
 
     protected $casts = [
+        'name' => 'string',
         'username' => 'string',
         'email' => 'string',
         'password' => 'string',
@@ -26,12 +28,21 @@ class User extends Authenticatable
     ];
 
     public static array $rules = [
-        'username' => 'nullable|string|max:50',
-        'email' => 'required|string|max:100',
-        'password' => 'required|string|max:255',
-        'role' => 'nullable|string',
+        'name' => 'nullable|string|max:100',
+        'username' => 'required|string|max:50|unique:users,username',
+        'email' => 'required|email|max:100|unique:users,email',
+        'password' => 'required|string|min:8|max:255',
+        'role' => 'nullable|in:admin,user',
         'is_active' => 'nullable|boolean',
         'created_at' => 'nullable',
         'updated_at' => 'nullable'
     ];
+
+    /**
+     * Automatically hash password when setting it
+     */
+    public function setPasswordAttribute($value)
+    {
+        $this->attributes['password'] = Hash::make($value);
+    }
 }

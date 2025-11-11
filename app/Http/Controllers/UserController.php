@@ -45,6 +45,11 @@ class UserController extends AppBaseController
     {
         $input = $request->all();
 
+        // Ensure 'name' is set for DBs that require it (default Laravel users schema)
+        if (!isset($input['name']) || empty($input['name'])) {
+            $input['name'] = $input['username'] ?? $input['email'] ?? 'User';
+        }
+
         $user = $this->userRepository->create($input);
 
         Flash::success('User saved successfully.');
@@ -97,7 +102,12 @@ class UserController extends AppBaseController
             return redirect(route('users.index'));
         }
 
-        $user = $this->userRepository->update($request->all(), $id);
+        $updateInput = $request->all();
+        if (!isset($updateInput['name']) || empty($updateInput['name'])) {
+            $updateInput['name'] = $updateInput['username'] ?? $updateInput['email'] ?? $user->name ?? 'User';
+        }
+
+        $user = $this->userRepository->update($updateInput, $id);
 
         Flash::success('User updated successfully.');
 

@@ -18,12 +18,19 @@
         @include('adminlte-templates::common.errors')
 
         <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span class="card-title">Update User Details</span>
+            </div>
 
             {!! Form::model($user, ['route' => ['users.update', $user->id], 'method' => 'patch']) !!}
 
             <div class="card-body">
-                <div class="row">
-                    @include('users.fields')
+                <div class="row justify-content-center">
+                    <div class="col-md-10">
+                        <div class="row">
+                            @include('users.fields')
+                        </div>
+                    </div>
                 </div>
             </div>
 
