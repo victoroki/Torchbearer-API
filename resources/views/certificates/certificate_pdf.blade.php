@@ -324,7 +324,7 @@
                         <td>
                             <div class="signature-name">{{ $trainerName }}</div>
                             <div class="signature-line"></div>
-                            <div class="signature-title">Technical Instructor</div>
+                            <div class="signature-title">Technical Trainer</div>
                         </td>
                         <td>
                             <img src="{{ $stampBase64 }}" alt="Stamp" class="stamp-img">

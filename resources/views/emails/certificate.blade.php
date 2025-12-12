@@ -35,12 +35,13 @@
                                 <strong style="color: #1e3a8a;">{{ $courseName }}</strong>.
                             </p>
                             
-                            <p style="color: #333333; line-height: 1.6; margin: 0 0 15px 0; font-size: 16px;">
+                            <!-- <p style="color: #333333; line-height: 1.6; margin: 0 0 15px 0; font-size: 16px;">
                                 {{ $courseDescription }}
-                            </p>
+                            </p> -->
                             
                             <p style="color: #333333; line-height: 1.6; margin: 0 0 25px 0; font-size: 16px;">
-                                Your certificate is attached to this email. Please download and keep it for your records.
+                                Your certificate is attached to this email. Please download and keep it for your records.<br>
+                                Share your achievement and tag us on <a href="https://www.linkedin.com/company/torchbearer-institute-of-technologies/posts/?feedView=all" style="color: #1e3a8a; text-decoration: none;">LinkedIn</a>!
                             </p>
                             
                             <!-- Certificate Details Box -->
