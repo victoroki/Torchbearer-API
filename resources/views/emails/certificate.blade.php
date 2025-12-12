@@ -42,6 +42,7 @@
                             <p style="color: #333333; line-height: 1.6; margin: 0 0 25px 0; font-size: 16px;">
                                 Your certificate is attached to this email. Please download and keep it for your records.<br>
                                 Share your achievement and tag us on <a href="https://www.linkedin.com/company/torchbearer-institute-of-technologies/posts/?feedView=all" style="color: #1e3a8a; text-decoration: none;">LinkedIn</a>!
+                                <a href="https://web.facebook.com/profile.php?id=61572958352380" style="color: #1e3a8a; text-decoration: none;">Facebook</a>!
                             </p>
                             
                             <!-- Certificate Details Box -->
@@ -68,7 +69,7 @@
                     <tr>
                         <td style="background-color: #1e3a8a; padding: 30px; text-align: center;">
                             <p style="color: #FFD700; margin: 0 0 10px 0; font-size: 18px; font-weight: bold;">
-                                Institute of Torchbearer Technologies
+                                Torchbearer Institute
                             </p>
                             <p style="color: #ffffff; margin: 0; font-size: 14px; line-height: 1.6;">
                                 Empowering the future of renewable energy<br>
