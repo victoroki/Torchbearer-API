@@ -28,11 +28,14 @@ class EventAPIController extends AppBaseController
      */
     public function index(Request $request): JsonResponse
     {
-        $events = $this->eventRepository->all(
-            $request->except(['skip', 'limit']),
-            $request->get('skip'),
-            $request->get('limit')
-        );
+        $events = $this->eventRepository
+            ->allQuery(
+                $request->except(['skip', 'limit']),
+                $request->get('skip'),
+                $request->get('limit')
+            )
+            ->orderByDesc('date')
+            ->get();
 
         return $this->sendResponse($events->toArray(), 'Events retrieved successfully');
     }

@@ -28,11 +28,14 @@ class TrainingProgramAPIController extends AppBaseController
      */
     public function index(Request $request): JsonResponse
     {
-        $trainingPrograms = $this->trainingProgramRepository->all(
-            $request->except(['skip', 'limit']),
-            $request->get('skip'),
-            $request->get('limit')
-        );
+        $trainingPrograms = $this->trainingProgramRepository
+            ->allQuery(
+                $request->except(['skip', 'limit']),
+                $request->get('skip'),
+                $request->get('limit')
+            )
+            ->orderByDesc('start_date')
+            ->get();
 
         return $this->sendResponse($trainingPrograms->toArray(), 'Training Programs retrieved successfully');
     }

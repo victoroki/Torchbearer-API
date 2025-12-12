@@ -23,15 +23,13 @@ class CertificateMail extends Mailable implements ShouldQueue
     public function __construct(Certificate $certificate)
     {
         $this->certificate = $certificate;
-        
-        // Always fetch the single course with ID = 1
-        $this->course = Course::find(1);
+        $this->course = Course::where('name', $certificate->course_name)->orderBy('id')->first();
     }
 
     public function envelope(): Envelope
     {
         // Dynamically set the subject with course name
-        $courseName = $this->course?->name ?? 'Solar Design Course';
+        $courseName = $this->course?->name ?? ($this->certificate->course_name ?? 'Solar Design Course');
         
         return new Envelope(
             subject: "Your {$courseName} Certificate - Institute of Torchbearer Technologies",
@@ -46,9 +44,9 @@ class CertificateMail extends Mailable implements ShouldQueue
             with: [
                 'recipientName' => $this->certificate->recipient_name ?? 'Recipient',
                 'courseDescription' => $this->course?->description ?? 'Course completion',
-                'courseName' => $this->course?->name ?? 'Solar Design Course',
-                'issueDate' => $this->certificate->issue_date ? 
-                    \Carbon\Carbon::parse($this->certificate->issue_date)->format('F j, Y') : 
+                'courseName' => $this->course?->name ?? ($this->certificate->course_name ?? 'Solar Design Course'),
+                'issueDate' => $this->certificate->created_at ? 
+                    \Carbon\Carbon::parse($this->certificate->created_at)->format('F j, Y') : 
                     now()->format('F j, Y'),
                 'certificateId' => $this->certificate->certificate_id ?? 'N/A',
             ]
@@ -65,10 +63,10 @@ class CertificateMail extends Mailable implements ShouldQueue
             'recipientName' => $this->certificate->recipient_name ?? 'Recipient',
             'courseDescription' => $this->course?->description ?? 'Successfully completed the solar design course',
             'trainerName' => $this->course?->trainer ?? 'Institute Staff',
-            'courseName' => $this->course?->name ?? 'Solar Design Course', 
+            'courseName' => $this->course?->name ?? ($this->certificate->course_name ?? 'Solar Design Course'), 
             'certificateId' => $this->certificate->certificate_id ?? 'N/A',
-            'issueDate' => $this->certificate->issue_date ? 
-                \Carbon\Carbon::parse($this->certificate->issue_date)->format('F d, Y') : 
+            'issueDate' => $this->certificate->created_at ? 
+                \Carbon\Carbon::parse($this->certificate->created_at)->format('F d, Y') : 
                 now()->format('F d, Y'),
             'logoBase64' => $logoBase64,
             'stampBase64' => $stampBase64,

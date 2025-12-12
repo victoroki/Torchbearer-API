@@ -19,6 +19,9 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 
+Route::post('/certificates/register', [App\Http\Controllers\API\CertificateAPIController::class, 'register']);
+Route::post('/certificates/register-course2', [App\Http\Controllers\API\CertificateAPIController::class, 'registerCourseTwo']);
+
 Route::resource('certificates', App\Http\Controllers\API\CertificateAPIController::class)
     ->except(['create', 'edit']);
 
@@ -55,5 +58,4 @@ Route::resource('useful-links', App\Http\Controllers\API\UsefulLinkAPIController
 Route::resource('users', App\Http\Controllers\API\UserAPIController::class)
     ->except(['create', 'edit']);
 
-Route::post('/certificates/register', [App\Http\Controllers\API\CertificateAPIController::class, 'register']);
-Route::post('/certificates/kenstane', [App\Http\Controllers\API\CertificateAPIController::class, 'registerKenya']);
+ 

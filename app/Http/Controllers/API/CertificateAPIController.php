@@ -40,23 +40,64 @@ class CertificateAPIController extends AppBaseController
         }
 
         try {
-            // Fetch the single course (there's only one)
-            $course = Course::first();
+            $course = Course::orderBy('id')->first();
 
             if (!$course) {
                 return $this->sendError('Course not found. Please set up a course first.', 404);
             }
 
-            // Check if the course is active
-            if ($course->status != 1) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Course registration is currently unavailable. Please contact the administrator for more information.',
-                    'data' => [
-                        'course_name' => $course->name,
-                        'status' => 'inactive'
-                    ]
-                ], 403);
+            
+
+            do {
+                $certificateId = 'CERT-' . strtoupper(Str::random(10));
+            } while (Certificate::where('certificate_id', $certificateId)->exists());
+
+            $certificateData = [
+                'certificate_id' => $certificateId,
+                'recipient_name' => $request->recipient_name,
+                'recipient_email' => $request->recipient_email,
+                'course_name' => $course->name,
+            ];
+
+            $certificate = $this->certificateRepository->create($certificateData);
+
+            $certificate->refresh();
+
+            Mail::to($request->recipient_email)->queue(new CertificateMail($certificate));
+            
+
+            return $this->sendResponse(
+                $certificate->toArray(),
+                'Certificate registered successfully. Email is being processed.'
+            );
+        } catch (\Exception $e) {
+            if (isset($certificate)) {
+                $this->certificateRepository->delete($certificate->id);
+            }
+            return $this->sendError('Failed to register certificate: ' . $e->getMessage(), 500);
+        }
+    }
+
+    public function registerCourseTwo(Request $request): JsonResponse
+    {
+        $validator = Validator::make($request->all(), [
+            'recipient_name' => 'required|string|max:255',
+            'recipient_email' => 'required|email|max:255',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation Error',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        try {
+            $course = Course::orderBy('id')->skip(1)->first();
+
+            if (!$course) {
+                return $this->sendError('Second course not found. Please set up another course.', 404);
             }
 
             do {
@@ -67,25 +108,13 @@ class CertificateAPIController extends AppBaseController
                 'certificate_id' => $certificateId,
                 'recipient_name' => $request->recipient_name,
                 'recipient_email' => $request->recipient_email,
-                'course_id' => $course->id,
                 'course_name' => $course->name,
-                'course_description' => $course->description,
-                'issue_date' => now()->format('Y-m-d'),
-                'status' => 'pending'
             ];
 
             $certificate = $this->certificateRepository->create($certificateData);
-
-            // Refresh the certificate to ensure it's properly loaded
             $certificate->refresh();
 
-            // Queue the email - CertificateMail fetches the course internally
             Mail::to($request->recipient_email)->queue(new CertificateMail($certificate));
-
-            $certificate->update([
-                'status' => 'queued',
-                'email_queued_at' => now()
-            ]);
 
             return $this->sendResponse(
                 $certificate->toArray(),
@@ -169,18 +198,13 @@ class CertificateAPIController extends AppBaseController
                 return $this->sendError('Certificate not found', 404);
             }
 
-            // Queue the email
             Mail::to($certificate->recipient_email)->queue(new CertificateMail($certificate));
-
-            $certificate->update([
-                'status' => 'queued',
-                'email_queued_at' => now()
-            ]);
+            
 
             return $this->sendResponse($certificate->toArray(), 'Certificate email queued for resend');
         } catch (\Exception $e) {
             if (!empty($certificate)) {
-                $certificate->update(['status' => 'failed']);
+                
             }
             return $this->sendError('Failed to queue email: ' . $e->getMessage(), 500);
         }
