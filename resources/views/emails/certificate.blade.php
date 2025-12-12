@@ -60,7 +60,7 @@
                             </table>
                             
                             <p style="color: #333333; line-height: 1.6; margin: 25px 0 0 0; font-size: 16px;">
-                                We wish you continued success in your solar design career!
+                                We wish you continued success in your career!
                             </p>
                         </td>
                     </tr>

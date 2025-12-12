@@ -328,7 +328,7 @@
                         </td>
                         <td>
                             <img src="{{ $stampBase64 }}" alt="Stamp" class="stamp-img">
-                            <div class="signature-name">Ondora Dalton</div>
+                            <div class="signature-name">Ondora Mogere Dalton</div>
                             <div class="signature-line"></div>
                             <div class="signature-title">Technical Director</div>
                             <div class="signature-subtitle">Torchbearer Institute of Technologies</div>
